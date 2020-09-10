@@ -1,0 +1,186 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using cwklib2020;
+using System.Collections.Generic;
+
+
+namespace EL3300GeneticAlgorithm
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+
+        //Main GA implementation
+
+
+        //int[] parent1 = { 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0 };
+        //int[] parent2 = { 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1 };
+
+
+
+
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            //tbDisplay.Clear();
+            //FitFunc fitness = new FitFunc();
+
+                double crossOverProbability = 0.85; //Standard probability for crossover occurring
+               // int mutationProbaility = 0.15; //standard probability for mutation occuring
+                Random rand = new Random();
+               // int randomNumber = rand.Next(1, 100);
+               
+                int temp = 0; //Will be used for swapping elements in mutation for parent 1
+                int temp2 = 0; //Will be used for swapping elements in mutation for parent 2
+                int temp3 = 0;//Parent 1 mutation
+                int temp4 = 0;//Parent 2 mutation
+                //int temp5 = 0; //parent1 mutation
+                //int temp6 = 0; //parent2 mutation
+                int mutationPercentage = 80; 
+            //  int L = 0;
+            Global.epoch = 1;
+            //CROSSOVER & MUTATION
+            /////////////////////////////////////////////////////////// The performance of child is caried over and placed back into parent 2
+            for (int p = 0; p < Global.Population; p++)
+            {
+                for (int epoch=0; epoch<Global.epoch; epoch++) //Allows system to run through a series of iterations
+                {
+                    int randomNumber = rand.Next(1, 100); //new random number set every time loop runs
+                    int randomNumber2 = rand.Next(1, 100); //new random number set every time loop runs
+                    for (int z = 0; z < Global.parent1.Length - 1; z++)
+                    {
+                        //shift elements down
+                        temp = Global.parent1[z];
+                        Global.parent1[z] = Global.parent1[z + 1];
+                        Global.parent1[z + 1] = temp;
+
+                        temp2 = Global.parent2[z];
+                        Global.parent2[z] = Global.parent2[z + 1];
+                        Global.parent2[z + 1] = temp2;
+
+                    }
+                    if (crossOverProbability > 0 && randomNumber >= crossOverProbability)  //this will allow a crossover to occur everytime
+                    {
+                        if (mutationPercentage > 0 && randomNumber <= mutationPercentage) //A mutation may not occur all the time, depending on whether the mutation probability exceeds the random probability decimal number
+                        {
+                            
+
+                            //The mutationpercentage allows access to all potential mutations based on the chance that a random number is high enough
+                            //further mutations occur randomly based on the size of the randomness
+                            if (randomNumber2 > 75) 
+                            {
+                                //swap elements for further mutation
+                                for (int q = 0; q < Global.parent1.Length - 1; q++)
+                                {
+                                    //shift elements down
+                                    temp3 = Global.child[q];
+                                    Global.child[q] = Global.child[q + 1];
+                                    Global.child[q + 1] = temp3;
+
+                                    temp4 = Global.parent2[q];
+                                    Global.child2[q] = Global.child2[q + 1];
+                                    Global.child2[q + 1] = temp4;
+
+                                }
+
+                                //CHILD 2 GIVEN VALUES
+                                // Array.Copy(Global.parent2, 25, Global.child, 25, 27);
+                                //  mutation where the child is a product of child 1 and child 2
+                                Array.Copy(Global.parent2, 1, Global.d1, 0, 26); //copy 26elements into c1 array// 1st half of parent 2             //Opposite of child1
+                                Array.Copy(Global.parent1, 25, Global.d2, 0, 27); //copy 27 elements into c2 array // 2nd half of parent 1
+                                Array.Copy(Global.d2, 0, Global.child2, 0, 26); //copy all elements from c1 into child array //child = parent 1+2
+                                Array.Copy(Global.d1, 0, Global.child2, 26, 27); //copy all elements from c2 array into child array //child = parent 1+2
+                            }
+
+                            if (randomNumber2 > 75) //this is a rare phemonenom
+                            {
+                                //swap elements for further mutation
+                                                                                                //THIS LOOP ONLY HAPPENS IF ABOVE LOOP HAPPENS
+                             
+
+                                //A mutation occurs where parent 2 is swapped with child 2 in the sense that a crossover takes place between child1 and child2 
+                                Array.Copy(Global.child, 1, Global.d1, 0, 26); //copy 26elements into c1 array// 1st half of parent 1
+                                Array.Copy(Global.child2, 25, Global.d2, 0, 27); //copy 27 elements into c2 array // 2nd half of parent 2
+                                Array.Copy(Global.d1, 1, Global.child, 0, 26); //copy all elements from c1 into child array //child = parent 1+2
+                                Array.Copy(Global.d2, 1, Global.child, 26, 27);
+                                //Global.parent2 = Global.child2;
+                            }
+                            
+                        }
+                        //child 1
+                        Array.Copy(Global.parent1, 1, Global.c1, 0, 26); //copy 26elements into c1 array// 1st half of parent 1
+                        Array.Copy(Global.parent2, 25, Global.c2, 0, 27); //copy 27 elements into c2 array // 2nd half of parent 2
+                        Array.Copy(Global.c2, 0, Global.child, 0, 26); //copy all elements from c1 into child array //child = parent 1+2
+                        Array.Copy(Global.c1, 0, Global.child, 26, 27); //copy all elements from c2 array into child array //child = parent 1+2
+                        
+
+                        Global.parent1 = Global.child; //This is to cause the system to keep rearranging the possible genes
+
+                     
+
+                    }
+                    tbDisplay.Text = string.Join(string.Empty, Global.child); //Converts child array to string
+
+                   
+
+                }
+                
+            }     
+                   
+            
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            FitFunc newtest = new FitFunc();
+            String enginerun = tbDisplay.Text;
+            int gradeValue = newtest.evalFunc(enginerun);
+            tbDisplay.Text = string.Join(string.Empty, gradeValue);
+        }
+    }
+
+
+}
+
+
+
+
+
+
+
+
+//fitness function 253 or 275
+
+//1-9 *5 = 45
+//10-14 *1or0 = 50
+//15 *3 = 53
+
+
+//I give the first bs string values, then allow the system to change the order and mutate and crossover parts
+
+
+//int []  n = new int[10]; /* n is an array of 10 integers */
+
+
+//The power of GAs come from mutations and crossovers between genomes rather than simply selecting the best first.
+
+//crossover works for percentage and the random number; now I need to implement the population
+
+//system has been fixed so that it no longer reaches a limit to the number of iterations performed, next step is to increase fitness
+
